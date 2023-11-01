@@ -310,3 +310,19 @@
             (buffer-substring-no-properties (max (- (point) 3000) (point-min)) (point))))
     (setq codeium/document/text 'my-codeium/document/text)
     (setq codeium/document/cursor_offset 'my-codeium/document/cursor_offset))
+
+;; Company preview setup for codeium. I like to use completion-at-point manually, so disable it for now.
+;; (use-package company
+;;     :defer 0.1
+;;     :config
+;;     (global-company-mode t)
+;;     (setq-default
+;;         company-idle-delay 0.05
+;;         company-require-match nil
+;;         company-minimum-prefix-length 0
+
+;;         ;; get only preview
+;;         company-frontends '(company-preview-frontend)
+;;         ;; also get a drop down
+;;         ;; company-frontends '(company-pseudo-tooltip-frontend company-preview-frontend)
+;;         ))
