@@ -6,8 +6,8 @@
 
 ;; Some functionality uses this to identify you, e.g. GPG configuration, email
 ;; clients, file templates and snippets. It is optional.
-(setq user-full-name "Frank Lee"
-      user-mail-address "frank.lee@xyzrobotics.com")
+(setq user-full-name "Yongqi Li"
+      user-mail-address "liyq556@midea.com")
 
 ;; Doom exposes five (optional) variables for controlling fonts in Doom:
 ;;
@@ -75,6 +75,10 @@
 ;; You can also try 'gd' (or 'C-c c d') to jump to their definition and see how
 ;; they are implemented.
 
+;; evil
+(after! evil-escape
+  (setq evil-escape-key-sequence "jk"))
+
 ;;; lsp
 (setq lsp-clients-clangd-args '("-j=3"
                                 "--background-index"
@@ -85,9 +89,10 @@
 (after! lsp-clangd (set-lsp-priority! 'clangd 2))
 
 ;;; projectile
-(setq
- projectile-project-search-path '("~/projects")
- )
+(setq projectile-project-search-path '("~/projects"))
+(map! :leader
+      :desc "Find other file"
+      "p o" #'projectile-find-other-file)
 
 ;;; magit
 (after! magit (setq magit-save-repository-buffers t))
