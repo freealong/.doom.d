@@ -112,7 +112,7 @@
       :unnarrowed t)
      ("w" "work" plain
       "%?"
-      :if-new (file+head "${slug}.org" "#+title: ${title}\n#+date: %U\n#+filetags: work:xyzrobotics %^{tags}\n")
+      :if-new (file+head "${slug}.org" "#+title: ${title}\n#+date: %U\n#+filetags: work %^{tags}\n")
       :unnarrowed t)
      )
    )
@@ -140,7 +140,7 @@
   (interactive)
   (org-roam-capture- :node (org-roam-node-create)
                      :templates '(("i" "inbox" plain "* %?"
-                                  :if-new (file+head "Inbox.org" "#+title: Inbox\n")))))
+                                   :if-new (file+head "Inbox.org" "#+title: Inbox\n")))))
 
 (use-package! org
   :bind (("C-c e m c" . org-export-markdown-to-clipboard)))
@@ -152,103 +152,121 @@
       (clipboard-kill-region (point-min) (point-max))
       (kill-buffer-and-window))))
 
+(use-package! ox-pandoc
+  :config
+  (setq org-pandoc-options-for-gfm '((wrap . "preserve")))
+  )
+
 ;;; email
 ;; add mu4e path because I built mu by myself and installed it to /usr/local
-(add-to-list 'load-path "/usr/local/share/emacs/site-lisp/mu4e")
-;; Each path is relative to the path of the maildir you passed to mu
+;;(add-to-list 'load-path "/usr/local/share/emacs/site-lisp/mu4e")
+;;;; Each path is relative to the path of the maildir you passed to mu
+;;
+;;(defun capture-mail-follow-up (msg)
+;;  (interactive)
+;;  (call-interactively 'org-store-link)
+;;  (org-capture nil "mf"))
+;;
+;;(defun capture-mail-read-later (msg)
+;;  (interactive)
+;;  (call-interactively 'org-store-link)
+;;  (org-capture nil "mr"))
+;;
+;;(use-package! mu4e
+;;  :ensure nil
+;;  :defer 20
+;;  :config
+;;  (set-email-account!
+;;   "xyzrobotics.com"
+;;   '((mu4e-sent-folder       . "/xyzrobotics.com/Sent Items")
+;;     (mu4e-drafts-folder     . "/xyzrobotics.com/Drafts")
+;;     (mu4e-trash-folder      . "/xyzrobotics.com/Trash")
+;;     (mu4e-refile-folder     . "/xyzrobotics.com/Archive")
+;;     (smtpmail-smtp-user     . "frank.lee@xyzrobotics.com")
+;;     ;; (user-mail-address      . "frank.lee@xyzrobotics.com")    ;; only needed for mu < 1.4
+;;     (mu4e-compose-signature . "---\nFrank Lee\nhttps://www.xyzrobotics.com\nSent From Doom Emacs."))
+;;   t)
+;;
+;;  (setq mu4e-maildir-shortcuts
+;;      '(("/xyzrobotics.com/Sent Items" . ?s)
+;;        ("/xyzrobotics.com/INBOX"      . ?i)
+;;        ("/xyzrobotics.com/Trash"      . ?t)
+;;        ("/xyzrobotics.com/Drafts"     . ?d)
+;;        ("/xyzrobotics.com/bitbucket"  . ?b)
+;;        ("/xyzrobotics.com/atlassian"  . ?a)))
+;;
+;;  ;; Add mu4e custom actions for our capture templates
+;;  (add-to-list 'mu4e-headers-actions
+;;               '("follow up" . capture-mail-follow-up) t)
+;;  (add-to-list 'mu4e-view-actions
+;;               '("follow up" . capture-mail-follow-up) t)
+;;  (add-to-list 'mu4e-headers-actions
+;;               '("read later" . capture-mail-read-later) t)
+;;  (add-to-list 'mu4e-view-actions
+;;               '("read later" . capture-mail-read-later) t)
+;;
+;;  ;; Refresh mail using isync every 10 minutes
+;;  (setq mu4e-update-interval (* 10 60))
+;;  (mu4e t)
+;;)
+;;
+;;(use-package! org-msg
+;;  :config
+;;  (setq  org-msg-default-alternatives '((new            . (text html))
+;;                                        (reply-to-html   . (text html))
+;;                                        (reply-to-text   . (text html)))
+;;         org-msg-greeting-fmt "
+;;-----
+;;/Frank Lee/\n
+;;/www.xyzrobotics.com/\n
+;;/May the Emacs force be with you./\n
+;;/Sent From [[https://www.gnu.org/software/emacs/][Emacs]] powered by [[https://www.emacswiki.org/emacs/mu4e][mu4e]] and [[https://github.com/jeremy-compostella/org-msg][org-msg]]./
+;;-----\n
+;;"))
+;;
+;;;; org capture templates for mail
+;;(nconc org-capture-templates
+;;       '(("m" "Email Workflow")
+;;         ("mf" "Follow Up" entry (file+olp "~/org/Mail.org" "Follow Up")
+;;          "* TODO Follow up: %:fromname on %a\nSCHEDULED:%t\n\n%i" :immediate-finish t)
+;;         ("mr" "Read Later" entry (file+olp "~/org/Mail.org" "Read Later")
+;;          "* TODO Read: %:fromname on %a\nSCHEDULED:%t\n\n%i" :immediate-finish t)
+;;         ))
+;;
+;;;; Call the oauth2ms program to fetch the authentication token
+;;(defun fetch-access-token ()
+;;  (with-temp-buffer
+;;    (call-process "/home/xyz/.local/bin/oauth2ms" nil t nil "--encode-xoauth2")
+;;    (buffer-string)))
+;;
+;;;; Add new authentication method for xoauth2
+;;(cl-defmethod smtpmail-try-auth-method
+;;  (process (_mech (eql xoauth2)) user password)
+;;  (let* ((access-token (fetch-access-token)))
+;;    (smtpmail-command-or-throw
+;;     process
+;;     (concat "AUTH XOAUTH2 " access-token)
+;;     235)))
+;;
+;;;; Register the method
+;;(with-eval-after-load 'smtpmail
+;;  (add-to-list 'smtpmail-auth-supported 'xoauth2))
+;;
+;;(setq message-send-mail-function   'smtpmail-send-it
+;;  smtpmail-default-smtp-server "smtp.office365.com"
+;;  smtpmail-smtp-server         "smtp.office365.com"
+;;  smtpmail-stream-type  'starttls
+;;  smtpmail-smtp-service 587)
 
-(defun capture-mail-follow-up (msg)
-  (interactive)
-  (call-interactively 'org-store-link)
-  (org-capture nil "mf"))
+;; LLM
+;; (use-package! aidermacs
+;;   :bind (("C-c a" . aidermacs-transient-menu))
+;;   :custom
+;;   (aidermacs-default-chat-mode 'architect)
+;;   (aidermacs-default-model "ollama_chat/deepseek-r1:latest")
+;;   (aidermacs-backend 'vterm))
 
-(defun capture-mail-read-later (msg)
-  (interactive)
-  (call-interactively 'org-store-link)
-  (org-capture nil "mr"))
-
-(use-package! mu4e
-  :ensure nil
-  :defer 20
-  :config
-  (set-email-account!
-   "xyzrobotics.com"
-   '((mu4e-sent-folder       . "/xyzrobotics.com/Sent Items")
-     (mu4e-drafts-folder     . "/xyzrobotics.com/Drafts")
-     (mu4e-trash-folder      . "/xyzrobotics.com/Trash")
-     (mu4e-refile-folder     . "/xyzrobotics.com/Archive")
-     (smtpmail-smtp-user     . "frank.lee@xyzrobotics.com")
-     ;; (user-mail-address      . "frank.lee@xyzrobotics.com")    ;; only needed for mu < 1.4
-     (mu4e-compose-signature . "---\nFrank Lee\nhttps://www.xyzrobotics.com\nSent From Doom Emacs."))
-   t)
-
-  (setq mu4e-maildir-shortcuts
-      '(("/xyzrobotics.com/Sent Items" . ?s)
-        ("/xyzrobotics.com/INBOX"      . ?i)
-        ("/xyzrobotics.com/Trash"      . ?t)
-        ("/xyzrobotics.com/Drafts"     . ?d)
-        ("/xyzrobotics.com/bitbucket"  . ?b)
-        ("/xyzrobotics.com/atlassian"  . ?a)))
-
-  ;; Add mu4e custom actions for our capture templates
-  (add-to-list 'mu4e-headers-actions
-               '("follow up" . capture-mail-follow-up) t)
-  (add-to-list 'mu4e-view-actions
-               '("follow up" . capture-mail-follow-up) t)
-  (add-to-list 'mu4e-headers-actions
-               '("read later" . capture-mail-read-later) t)
-  (add-to-list 'mu4e-view-actions
-               '("read later" . capture-mail-read-later) t)
-
-  ;; Refresh mail using isync every 10 minutes
-  (setq mu4e-update-interval (* 10 60))
-  (mu4e t)
-)
-
-(use-package! org-msg
-  :config
-  (setq  org-msg-default-alternatives '((new            . (text html))
-                                        (reply-to-html   . (text html))
-                                        (reply-to-text   . (text html)))
-         org-msg-greeting-fmt "
------
-/Frank Lee/\n
-/www.xyzrobotics.com/\n
-/May the Emacs force be with you./\n
-/Sent From [[https://www.gnu.org/software/emacs/][Emacs]] powered by [[https://www.emacswiki.org/emacs/mu4e][mu4e]] and [[https://github.com/jeremy-compostella/org-msg][org-msg]]./
------\n
-"))
-
-;; org capture templates for mail
-(nconc org-capture-templates
-       '(("m" "Email Workflow")
-         ("mf" "Follow Up" entry (file+olp "~/org/Mail.org" "Follow Up")
-          "* TODO Follow up: %:fromname on %a\nSCHEDULED:%t\n\n%i" :immediate-finish t)
-         ("mr" "Read Later" entry (file+olp "~/org/Mail.org" "Read Later")
-          "* TODO Read: %:fromname on %a\nSCHEDULED:%t\n\n%i" :immediate-finish t)
-         ))
-
-;; Call the oauth2ms program to fetch the authentication token
-(defun fetch-access-token ()
-  (with-temp-buffer
-    (call-process "/home/xyz/.local/bin/oauth2ms" nil t nil "--encode-xoauth2")
-    (buffer-string)))
-
-;; Add new authentication method for xoauth2
-(cl-defmethod smtpmail-try-auth-method
-  (process (_mech (eql xoauth2)) user password)
-  (let* ((access-token (fetch-access-token)))
-    (smtpmail-command-or-throw
-     process
-     (concat "AUTH XOAUTH2 " access-token)
-     235)))
-
-;; Register the method
-(with-eval-after-load 'smtpmail
-  (add-to-list 'smtpmail-auth-supported 'xoauth2))
-
-(setq message-send-mail-function   'smtpmail-send-it
-  smtpmail-default-smtp-server "smtp.office365.com"
-  smtpmail-smtp-server         "smtp.office365.com"
-  smtpmail-stream-type  'starttls
-  smtpmail-smtp-service 587)
+(use-package! gemini-cli
+  :bind-keymap (("C-c c" . gemini-cli-command-map))
+  :custom ((gemini-cli-mode)
+           (gemini-cli-terminal-backend 'vterm)))

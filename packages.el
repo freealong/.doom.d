@@ -47,3 +47,11 @@
 ;; (unpin! pinned-package another-pinned-package)
 ;; ...Or *all* packages (NOT RECOMMENDED; will likely break things)
 ;; (unpin! t)
+
+;; (package! aidermacs)
+
+(package! gemini-cli
+  :recipe (:host github
+           :repo "linchen2chris/gemini-cli.el"
+           :branch "main"
+           :files ("*.el" (:exclude "demo.gif"))))
