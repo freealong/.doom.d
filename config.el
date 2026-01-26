@@ -269,4 +269,5 @@
 (use-package! gemini-cli
   :bind-keymap (("C-c c" . gemini-cli-command-map))
   :custom ((gemini-cli-mode)
+           (gemini-cli-program "gemini-proxy")
            (gemini-cli-terminal-backend 'vterm)))
