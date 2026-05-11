@@ -153,9 +153,9 @@
       (kill-buffer-and-window))))
 
 (use-package! ox-pandoc
+  :when (executable-find "pandoc")
   :config
-  (setq org-pandoc-options-for-gfm '((wrap . "preserve")))
-  )
+  (setq org-pandoc-options-for-gfm '((wrap . "preserve"))))
 
 ;;; email
 ;; add mu4e path because I built mu by myself and installed it to /usr/local
