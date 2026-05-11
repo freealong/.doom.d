@@ -266,8 +266,32 @@
 ;;   (aidermacs-default-model "ollama_chat/deepseek-r1:latest")
 ;;   (aidermacs-backend 'vterm))
 
-(use-package! gemini-cli
-  :bind-keymap (("C-c c" . gemini-cli-command-map))
-  :custom ((gemini-cli-mode)
-           (gemini-cli-program "gemini-proxy")
-           (gemini-cli-terminal-backend 'vterm)))
+;; (use-package! gemini-cli
+;;   :bind-keymap (("C-c c" . gemini-cli-command-map))
+;;   :custom ((gemini-cli-mode)
+;;            (gemini-cli-program "gemini-proxy")
+;;            (gemini-cli-terminal-backend 'vterm)))
+
+(use-package! ai-code
+  :config
+  (ai-code-set-backend 'codex)
+  ;; Optional: use a narrower transient menu on smaller frames
+  ;; (setq ai-code-menu-layout 'two-columns)
+  (global-set-key (kbd "C-c a") #'ai-code-menu))
+
+;; Wrap "kill"(copy) in an OSC 52 sequence to make copy/paste works under remote Mac through ssh
+(defun my-tmux-osc52-copy (text &optional push)
+  (let* ((base64-string (base64-encode-string (encode-coding-string text 'utf-8) t))
+         ;; We must remove newlines from the base64 string for the escape sequence
+         (clean-base64 (replace-regexp-in-string "\n" "" base64-string))
+         ;; This is the "Tmux Wrap" that worked in your shell test
+         (tmux-sequence (format "\ePtmux;\e\e]52;c;%s\a\e\\" clean-base64)))
+    (send-string-to-terminal tmux-sequence)))
+
+;; Logic to separate Terminal vs. GUI behavior
+(if (display-graphic-p)
+    ;; GUI Mode: Use standard Linux clipboard
+    (setq x-select-enable-clipboard t)
+  ;; Terminal Mode: Use OSC 52 and disable X11 attempts
+  (setq x-select-enable-clipboard nil)
+  (setq interprogram-cut-function 'my-tmux-osc52-copy))

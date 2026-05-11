@@ -50,8 +50,11 @@
 
 ;; (package! aidermacs)
 
-(package! gemini-cli
-  :recipe (:host github
-           :repo "linchen2chris/gemini-cli.el"
-           :branch "main"
-           :files ("*.el" (:exclude "demo.gif"))))
+;; (package! gemini-cli
+;;   :recipe (:host github
+;;            :repo "linchen2chris/gemini-cli.el"
+;;            :branch "main"
+;;            :files ("*.el" (:exclude "demo.gif"))))
+
+(package! ai-code-interface
+  :recipe (:host github :repo "tninja/ai-code-interface.el"))
